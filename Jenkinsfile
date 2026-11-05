@@ -1,5 +1,4 @@
 pipeline {
-
     agent {
         label 'Jenkins-Agent'
     }
@@ -26,9 +25,9 @@ pipeline {
         stage('Java Version') {
             steps {
                 sh '''
-                export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
-                export PATH=$JAVA_HOME/bin:$PATH
-                java -version
+                    export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
+                    export PATH=$JAVA_HOME/bin:$PATH
+                    java -version
                 '''
             }
         }
@@ -36,9 +35,9 @@ pipeline {
         stage('Maven Version') {
             steps {
                 sh '''
-                export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
-                export PATH=$JAVA_HOME/bin:$PATH
-                /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn -version
+                    export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
+                    export PATH=$JAVA_HOME/bin:$PATH
+                    /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn -version
                 '''
             }
         }
@@ -46,9 +45,9 @@ pipeline {
         stage('Build Application') {
             steps {
                 sh '''
-                export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
-                export PATH=$JAVA_HOME/bin:$PATH
-                /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn clean compile
+                    export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
+                    export PATH=$JAVA_HOME/bin:$PATH
+                    /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn clean compile
                 '''
             }
         }
@@ -56,9 +55,9 @@ pipeline {
         stage('Test Application') {
             steps {
                 sh '''
-                export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
-                export PATH=$JAVA_HOME/bin:$PATH
-                /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn test
+                    export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
+                    export PATH=$JAVA_HOME/bin:$PATH
+                    /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn test
                 '''
             }
         }
@@ -66,18 +65,25 @@ pipeline {
         stage('Package Application') {
             steps {
                 sh '''
-                export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
-                export PATH=$JAVA_HOME/bin:$PATH
-                /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn package -DskipTests
+                    export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
+                    export PATH=$JAVA_HOME/bin:$PATH
+                    /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn package -DskipTests
                 '''
             }
         }
     }
 
     post {
-        success { echo 'Pipeline executed successfully!' }
-        failure { echo 'Pipeline execution failed!' }
-        always  { echo 'Pipeline execution completed!' }
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+
+        failure {
+            echo 'Pipeline execution failed!'
+        }
+
+        always {
+            echo 'Pipeline execution completed!'
+        }
     }
 }
-```
