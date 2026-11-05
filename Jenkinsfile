@@ -1,7 +1,12 @@
+```groovy
 pipeline {
 
     agent {
         label 'Jenkins-Agent'
+    }
+
+    options {
+        skipDefaultCheckout(true)
     }
 
     stages {
@@ -76,3 +81,4 @@ pipeline {
         always  { echo 'Pipeline execution completed!' }
     }
 }
+```
