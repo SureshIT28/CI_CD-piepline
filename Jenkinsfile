@@ -4,16 +4,6 @@ pipeline {
         label 'Jenkins-Agent'
     }
 
-    tools {
-        jdk 'Java17'
-        maven 'Maven3'
-    }
-
-    environment {
-        JAVA_HOME = '/usr/lib/jvm/java-17-amazon-corretto.x86_64'
-        PATH = "${JAVA_HOME}/bin:${env.PATH}"
-    }
-
     stages {
 
         stage('Cleanup Workspace') {
@@ -31,31 +21,51 @@ pipeline {
 
         stage('Java Version') {
             steps {
-                sh 'java -version'
+                sh '''
+                export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
+                export PATH=$JAVA_HOME/bin:$PATH
+                java -version
+                '''
             }
         }
 
         stage('Maven Version') {
             steps {
-                sh 'mvn -version'
+                sh '''
+                export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
+                export PATH=$JAVA_HOME/bin:$PATH
+                /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn -version
+                '''
             }
         }
 
         stage('Build Application') {
             steps {
-                sh 'mvn clean compile'
+                sh '''
+                export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
+                export PATH=$JAVA_HOME/bin:$PATH
+                /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn clean compile
+                '''
             }
         }
 
         stage('Test Application') {
             steps {
-                sh 'mvn test'
+                sh '''
+                export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
+                export PATH=$JAVA_HOME/bin:$PATH
+                /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn test
+                '''
             }
         }
 
         stage('Package Application') {
             steps {
-                sh 'mvn package -DskipTests'
+                sh '''
+                export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
+                export PATH=$JAVA_HOME/bin:$PATH
+                /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn package -DskipTests
+                '''
             }
         }
     }
