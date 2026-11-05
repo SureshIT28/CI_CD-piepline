@@ -1,115 +1,68 @@
 pipeline {
-    agent { label 'Jenkins-Agent' }
+
+    agent {
+        label 'Jenkins-Agent'
+    }
+
     tools {
         jdk 'Java17'
         maven 'Maven3'
     }
+
     environment {
-	    APP_NAME = "register-app-pipeline"
-            RELEASE = "1.0.0"
-            DOCKER_USER = "ashfaque9x"
-            DOCKER_PASS = 'dockerhub'
-            IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
-            IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-	    JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
+        JAVA_HOME = '/usr/lib/jvm/java-17-amazon-corretto.x86_64'
+        PATH = "${JAVA_HOME}/bin:${env.PATH}"
     }
-    stages{
-        stage("Cleanup Workspace"){
-                steps {
+
+    stages {
+
+        stage('Cleanup Workspace') {
+            steps {
                 cleanWs()
-                }
+            }
         }
 
-        stage("Checkout from SCM"){
-                steps {
-                    git branch: 'main', credentialsId: 'github', url: https://github.com/SureshIT28/CI_CD-piepline.git
-                }
+        stage('Checkout from GitHub') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/SureshIT28/CI_CD-piepline.git'
+            }
         }
 
-        stage("Build Application"){
+        stage('Java Version') {
             steps {
-                sh "mvn clean package"
+                sh 'java -version'
             }
-
-       }
-
-       stage("Test Application"){
-           steps {
-                 sh "mvn test"
-           }
-       }
-
-       stage("SonarQube Analysis"){
-           steps {
-	           script {
-		        withSonarQubeEnv(credentialsId: 'jenkins-sonarqube-token') { 
-                        sh "mvn sonar:sonar"
-		        }
-	           }	
-           }
-       }
-
-       stage("Quality Gate"){
-           steps {
-               script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'jenkins-sonarqube-token'
-                }	
-            }
-
         }
 
-        stage("Build & Push Docker Image") {
+        stage('Maven Version') {
             steps {
-                script {
-                    docker.withRegistry('',DOCKER_PASS) {
-                        docker_image = docker.build "${IMAGE_NAME}"
-                    }
-
-                    docker.withRegistry('',DOCKER_PASS) {
-                        docker_image.push("${IMAGE_TAG}")
-                        docker_image.push('latest')
-                    }
-                }
+                sh 'mvn -version'
             }
+        }
 
-       }
-
-       stage("Trivy Scan") {
-           steps {
-               script {
-	            sh ('docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ashfaque9x/register-app-pipeline:latest --no-progress --scanners vuln  --exit-code 0 --severity HIGH,CRITICAL --format table')
-               }
-           }
-       }
-
-       stage ('Cleanup Artifacts') {
-           steps {
-               script {
-                    sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
-                    sh "docker rmi ${IMAGE_NAME}:latest"
-               }
-          }
-       }
-
-       stage("Trigger CD Pipeline") {
+        stage('Build Application') {
             steps {
-                script {
-                    sh "curl -v -k --user clouduser:${JENKINS_API_TOKEN} -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' --data 'IMAGE_TAG=${IMAGE_TAG}' 'ec2-13-232-128-192.ap-south-1.compute.amazonaws.com:8080/job/gitops-register-app-cd/buildWithParameters?token=gitops-token'"
-                }
+                sh 'mvn clean compile'
             }
-       }
+        }
+
+        stage('Test Application') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Package Application') {
+            steps {
+                sh 'mvn package -DskipTests'
+            }
+        }
     }
 
     post {
-       failure {
-             emailext body: '''${SCRIPT, template="groovy-html.template"}''', 
-                      subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - Failed", 
-                      mimeType: 'text/html',to: "ashfaque.s510@gmail.com"
-      }
-      success {
-            emailext body: '''${SCRIPT, template="groovy-html.template"}''', 
-                     subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - Successful", 
-                     mimeType: 'text/html',to: "ashfaque.s510@gmail.com"
-      }      
-   }
+        success { echo 'Pipeline executed successfully!' }
+        failure { echo 'Pipeline execution failed!' }
+        always  { echo 'Pipeline execution completed!' }
+    }
 }
