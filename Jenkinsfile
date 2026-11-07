@@ -66,7 +66,7 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv(
-                        installationName: 'SonarQube',
+                        installationName: 'Sonarqube2-server',
                         credentialsId: 'jenkins-sonarqube-tokens'
                     ) {
                         sh '''
