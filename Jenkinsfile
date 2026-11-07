@@ -1,4 +1,3 @@
-
 pipeline {
     agent {
         label 'Jenkins-Agent'
@@ -67,7 +66,7 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv(
-                        'SonarQube',
+                        installationName: 'SonarQube',
                         credentialsId: 'jenkins-sonarqube-tokens'
                     ) {
                         sh '''
