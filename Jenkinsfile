@@ -72,7 +72,7 @@ pipeline {
                         sh '''
                             export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
                             export PATH=$JAVA_HOME/bin:$PATH
-                            /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+                            /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.3.0.6276:sonar
                         '''
                     }
                 }
