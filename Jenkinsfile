@@ -46,6 +46,7 @@ pipeline {
                 sh '''
                     export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
                     export PATH=$JAVA_HOME/bin:$PATH
+
                     /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn clean compile
                 '''
             }
@@ -56,6 +57,7 @@ pipeline {
                 sh '''
                     export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
                     export PATH=$JAVA_HOME/bin:$PATH
+
                     /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn test
                 '''
             }
@@ -99,7 +101,6 @@ pipeline {
             }
         }
 
-        // NEW: Docker Build
         stage('Docker Build') {
             steps {
                 sh '''
@@ -108,18 +109,17 @@ pipeline {
             }
         }
 
-        // NEW: Docker Push
         stage('Docker Push') {
             steps {
                 withCredentials([
                     usernamePassword(
                         credentialsId: 'dockerhub',
-                        usernameVariable: 'DOCKER_USER',
+                        usernameVariable: 'DOCKERHUB_USER',
                         passwordVariable: 'DOCKER_PASS'
                     )
                 ]) {
                     sh '''
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
 
                         docker push ${DOCKER_IMAGE}:${RELEASE}-${BUILD_NUMBER}
 
