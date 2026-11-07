@@ -1,3 +1,4 @@
+
 pipeline {
     agent {
         label 'Jenkins-Agent'
@@ -59,6 +60,23 @@ pipeline {
                     export PATH=$JAVA_HOME/bin:$PATH
                     /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn test
                 '''
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    withSonarQubeEnv(
+                        'SonarQube',
+                        credentialsId: 'jenkins-sonarqube-tokens'
+                    ) {
+                        sh '''
+                            export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto.x86_64
+                            export PATH=$JAVA_HOME/bin:$PATH
+                            /home/ec2-user/tools/hudson.tasks.Maven_MavenInstallation/Maven3/bin/mvn sonar:sonar
+                        '''
+                    }
+                }
             }
         }
 
